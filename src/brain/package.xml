@@ -17,6 +17,7 @@
   <depend>serial_com</depend>
   <depend>joy</depend>
   <depend>gpio</depend>
+  <depend>ekf</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

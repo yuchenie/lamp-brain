@@ -69,37 +69,36 @@ void loop() {
   magY = (((double)rawY - 131072.0) / 131072.0) * 800;
   magZ = -(((double)rawZ - 131072.0) / 131072.0) * 800;
 
-  // Serial2.println("Hello from ESP32!");
   Serial2.flush();
 
   Serial2.print("(");
-  Serial2.print(magX, 5); Serial2.print(",");
-  Serial2.print(magY, 5); Serial2.print(",");
-  Serial2.print(magZ, 5); Serial2.print(") ");
+  Serial2.print(magX); Serial2.print(",");
+  Serial2.print(magY); Serial2.print(",");
+  Serial2.print(magZ); Serial2.print(") ");
 
   // --- Read Accelerometer & Gyroscope ---
   if (imu.checkStatus()) {
     imu.getAccel(&accelData); // Raw data
     imu.getGyro(&gyroData);   // Raw data
 
-    // convert raw to g and dps
-    float ax_g = accelData.xData / 1000;
-    float ay_g = accelData.yData / 1000; 
-    float az_g = accelData.zData / 1000;
+    // convert raw to m/s^2 and rad/s
+    float ax_g = accelData.xData * 9.80665 / 1000;
+    float ay_g = accelData.yData * 9.80665 / 1000; 
+    float az_g = accelData.zData * 9.80665 / 1000;
 
-    float gx_dps = gyroData.xData / 1000;
-    float gy_dps = gyroData.yData / 1000;
-    float gz_dps = gyroData.zData / 1000;
-
-    Serial2.print("(");
-    Serial2.print(ax_g, 5); Serial2.print(",");
-    Serial2.print(ay_g, 5); Serial2.print(",");
-    Serial2.print(az_g, 5); Serial2.print(") ");
+    float gx_dps = gyroData.xData * (PI / 180) / 1000;
+    float gy_dps = gyroData.yData * (PI / 180) / 1000;
+    float gz_dps = gyroData.zData * (PI / 180) / 1000;
 
     Serial2.print("(");
-    Serial2.print(gx_dps, 5); Serial2.print(",");
-    Serial2.print(gy_dps, 5); Serial2.print(",");
-    Serial2.print(gz_dps, 5); Serial2.println(")");
+    Serial2.print(ax_g); Serial2.print(",");
+    Serial2.print(ay_g); Serial2.print(",");
+    Serial2.print(az_g); Serial2.print(") ");
+
+    Serial2.print("(");
+    Serial2.print(gx_dps); Serial2.print(",");
+    Serial2.print(gy_dps); Serial2.print(",");
+    Serial2.print(gz_dps); Serial2.println(")");
 
   }
 

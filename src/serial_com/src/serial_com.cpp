@@ -30,8 +30,8 @@ class SerialNode : public rclcpp::Node {
                 RCLCPP_ERROR(this->get_logger(), "Serial port error: %s", e.what());
             }
 
-            imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("imu_msg", 10);
-            mag_pub_ = this->create_publisher<sensor_msgs::msg::MagneticField>("mag_msg", 10);
+            imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", 10);
+            mag_pub_ = this->create_publisher<sensor_msgs::msg::MagneticField>("imu/mag", 10);
 
             rc_movement_sub_ = this->create_subscription<ackermann_msgs::msg::AckermannDrive>("rc_msg", 1, std::bind(&SerialNode::rcMovementCallback, this, std::placeholders::_1));
             serial_pub_ = this->create_publisher<std_msgs::msg::String>("serial_msg", 1);
@@ -134,12 +134,19 @@ class SerialNode : public rclcpp::Node {
             auto mag_msg = sensor_msgs::msg::MagneticField{};
             message.data = msg;
 
+            auto current_time = this->now().nanoseconds();
+            double current_time_seconds = current_time / 1e9;
+
             sscanf(msg.c_str(),
                 "(%f,%f,%f) (%f,%f,%f) (%f,%f,%f)",
                 &mag_x, &mag_y, &mag_z,
                 &acc_x, &acc_y, &acc_z,
                 &gyro_x, &gyro_y, &gyro_z
             );
+
+            mag_x *= 1e-6;
+            mag_y *= 1e-6;
+            mag_z *= 1e-6;
 
             RCLCPP_INFO(this->get_logger(), "(%.2f,%.2f,%.2f) (%.2f,%.2f,%.2f) (%.2f,%.2f,%.2f)", 
                 mag_x, mag_y, mag_z,
@@ -166,6 +173,8 @@ class SerialNode : public rclcpp::Node {
             };
 
             imu_msg.orientation_covariance[0] = -1;
+            imu_msg.header.stamp.sec = current_time_seconds;
+            imu_msg.header.stamp.nanosec = current_time;
 
             mag_msg.magnetic_field.x = mag_x; // in Tesla
             mag_msg.magnetic_field.y = mag_y;
@@ -177,8 +186,11 @@ class SerialNode : public rclcpp::Node {
                 0, 0, 0.0001
             };
 
-            // auto current_time = this->now().nanoseconds();
-            // double current_time_seconds = current_time / 1e9;
+            mag_msg.header.stamp.sec = current_time_seconds;
+            mag_msg.header.stamp.nanosec = current_time;
+
+            imu_msg.header.frame_id = "base_link";
+            mag_msg.header.frame_id = "base_link";
             
             imu_pub_->publish(imu_msg);
             mag_pub_->publish(mag_msg);
