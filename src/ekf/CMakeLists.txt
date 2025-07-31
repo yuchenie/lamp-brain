@@ -14,6 +14,19 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(imu_filter_madgwick REQUIRED)
 
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_msgs REQUIRED)
+
+add_executable(tf_listener src/tf_listener.cpp)
+ament_target_dependencies(tf_listener rclcpp tf2 tf2_geometry_msgs tf2_ros tf2_msgs)
+
+install(TARGETS
+  tf_listener
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 install(DIRECTORY launch/
   DESTINATION share/${PROJECT_NAME}/launch
 )

@@ -144,15 +144,16 @@ class SerialNode : public rclcpp::Node {
                 &gyro_x, &gyro_y, &gyro_z
             );
 
+            // need to convert units here, otherwise resolution too low
             mag_x *= 1e-6;
             mag_y *= 1e-6;
             mag_z *= 1e-6;
 
-            RCLCPP_INFO(this->get_logger(), "(%.2f,%.2f,%.2f) (%.2f,%.2f,%.2f) (%.2f,%.2f,%.2f)", 
-                mag_x, mag_y, mag_z,
-                acc_x, acc_y, acc_z,
-                gyro_x, gyro_y, gyro_z
-            );
+            // RCLCPP_INFO(this->get_logger(), "(%.2f,%.2f,%.2f) (%.2f,%.2f,%.2f) (%.2f,%.2f,%.2f)", 
+            //     mag_x, mag_y, mag_z,
+            //     acc_x, acc_y, acc_z,
+            //     gyro_x, gyro_y, gyro_z
+            // );
 
             imu_msg.linear_acceleration.x = acc_x;
             imu_msg.linear_acceleration.y = acc_y;
